@@ -1,2 +1,2 @@
-# wra
-Projects done for the Womens Resource Agency (http://wrainc.org)
+# WRA - Women's Resource Agency
+Projects done for the Women's Resource Agency (http://wrainc.org)

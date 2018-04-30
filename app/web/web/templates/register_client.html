@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+{% block title %} - Client Registration{% endblock %}
+{% block heading %}Client Registration{% endblock %}
+{% macro textarea(name, desc, lines) -%}
+<textarea name="{{ name }}" placeholder="{{ desc }}" rows="{{ lines }}" cols="50"></textarea>
+{%- endmacro %}
+{% macro emailbox(name, desc) -%}
+<input type="email" name="{{ name }}" placeholder="{{ desc }}" />
+{%- endmacro %}
+{% macro textbox(name, desc) -%}
+<input type="text" name="{{ name }}" placeholder="{{ desc }}" />
+{%- endmacro %}
+{% macro checkbox(name, desc, value) -%}
+<label><input type="checkbox" name="{{ name }}" value="{{ value }}"/>{{ desc }}</label>
+{%- endmacro %}
+{% macro select(name, desc, options) -%}
+<label>{{ desc }}
+<select name="{{ name }}" size="1" placeholder="{{ desc }}">
+    <option value=""></option>
+    <optgroup label="{{ desc }}">
+    {% for option in options %}
+        <option value="{{ option['value'] }}">{{ option['desc'] }}</option>
+    {% endfor %}
+    </optgroup>
+</select></label>
+{%- endmacro %}
+{% block body %}
+<script language="JavaScript">
+    function prepare() {
+        elements = document.forms["register_client"].elements;
+        for (var hidden_index = 0; hidden_index < elements.length; hidden_index++) {
+            if(elements[hidden_index].type == "hidden") {
+                composite = 0;
+                // _ is used to indicate a constituent field, also referenced in routes.py
+                parts = document.getElementsByName("_"+elements[hidden_index].name);
+                for (var parts_index = 0; parts_index < parts.length; parts_index++) {
+                    if (parts[parts_index].type == "checkbox") {
+                        if (parts[parts_index].checked) {
+                            composite += parseInt(parts[parts_index].value);
+                        }
+                    } else {
+                        alert ("Unhandled control type - " + parts[parts_index].type);
+                    }
+                }
+                elements[hidden_index].value = composite;
+            }
+        }
+    }
+</script>
+<form name="register_client" method="post" action="/client">
+{% for group in groups %}
+    <fieldset name="{{ group['name'] }}">
+    <h3>{{ group['name'] }}</h3>
+    {% for sub_group in group['sub_groups'] %}
+        <h4>{{ sub_group['sub_group'] }}</h4>
+        {% for member in sub_group['members'] %}
+            {% if member['type'] in ('str', 'int') %}
+<!--1-->
+                {% if member['count'] %}
+<!--2-->
+                    {% for n in range(member['count']) %}
+                        {{ textbox(member['field'] ~ '[' ~ n ~ ']', member['desc']) }}
+                    {% endfor %}
+                {% elif member['count_min'] %}
+<!--3-->
+                    <br />
+                    {{ textarea(member['field'], member['desc'], member['count_min']) }}
+                {% else %}
+<!--4-->
+                    {{ textbox(member['field'], member['desc']) }}
+                {% endif %}
+            {% elif 'email' in member['type'] %}
+<!--5-->
+                {{ emailbox(member['field'], member['desc']) }}
+            {% elif member['type'] == 'bool' %}
+<!--6-->
+                {{ checkbox(member['field'], member['desc'], 1) }}
+            {% elif 'Enum' in member['type'] %}
+<!--7-->
+                {% if 'int' in member['type'] %}
+<!--8-->
+                    <h5>{{ member['desc'] }}</h5>
+                    {% for option in member['options'] %}
+                        {{ checkbox("_"+member['field'], option['desc'], option['value']) }}<br />
+                    {% endfor %}
+                    <input type="hidden" name="{{ member['field'] }}">
+                {% else %}
+<!--9-->
+                    {% if loop.length == 1 %}
+<!--A-->
+                        <h5>{{ member['desc'] }}</h5>
+                    {% endif %}
+                    {{ select(member['field'], member['desc'], member['options']) }}
+                {% endif %}
+            {% elif member['type'] in ('date', 'month') %}
+<!--B-->
+                {% if loop.length == 1 %}
+<!--C-->
+                    <h5>{{ member['desc'] }}</h5>
+                {% else %}
+<!--D-->
+                    <label>{{ member['desc'] }}</label>
+                {% endif %}
+                <input type="{{ member['type'] }}" name="{{ member['field'] }}">
+            {% elif member['type'] == 'bytes' %}
+<!--E-->
+<!--https://stackoverflow.com/questions/3096470/capture-signature-using-html5-and-ipad-->
+            {% else %}
+<!--F-->
+                {{ member['desc'] }}({{ member['field'] }}: {{ member['type'] }})
+            {% endif %}
+        {% endfor %}
+        <br />
+    {% endfor %}
+    </fieldset>
+{% endfor %}
+    <input type="submit" value="Register" onClick="prepare();">
+</form>
+{% endblock %}
+

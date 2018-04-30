@@ -1,0 +1,17 @@
+<!doctype html>
+<title>WRA A.P.P.</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>WRA A.P.P.</h1>
+  <div class=metanav>
+    {% if not session.logged_in %}
+      <a href="{{ url_for('login') }}">log in</a>
+    {% else %}
+      <a href="{{ url_for('logout') }}">log out</a>
+    {% endif %}
+    {% if error %}<hr/><p class=error><strong>Error:</strong> {{ error }}{% endif %}
+    {% if msg %}<hr/><p class=error><strong>Error:</strong> {{ error }}{% endif %}
+    <hr/>
+  </div>
+  {% block body %}{% endblock %}
+</div>

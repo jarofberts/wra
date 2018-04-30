@@ -1,0 +1,269 @@
+{% extends "layout.html" %}
+{% macro time_grid_cell(key, day) -%}
+  {% if not ((day == 'Fri' and (key in ['15', '16'])) or (day == 'Sat' and (key in ['09', '14', '15', '16']))): %}
+      <td><label class=grid><input type=checkbox class="option-input checkbox" name="{{ day }}{{ key }}" /></label></td>
+  {% endif %}
+{%- endmacro %}
+{% macro time_grid_row(key, value) -%}
+  <tr>
+    <th>{{ value }}</th>
+    {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']: %}{{ time_grid_cell(key, day) }}{% endfor %}
+  </tr>
+{%- endmacro %}
+{% macro labeled_checkbox (label, id, checked=false) -%}
+  <dt>{{ label|safe() }}</dt>
+  <dd><input type=checkbox name="{{ id }}" {% if checked %}checked{% endif %}/></dd>
+{%- endmacro %}
+{% macro yes_no (question, id, yes='Yes', no='No') -%}
+<dt>{{ question|safe() }}</dt>
+<dd><input type=radio name="{{ id }}" value=true>{{ yes }}          <input type=radio name="{{ id }}" value=false checked>{{ no }}</dd>
+{%- endmacro %}
+{% block body %}
+  <h2>Volunteer Application</h2>
+  <form action="{{ url_for('volunteer_apply') }}" method=post>
+    <div name=contact_info>
+      <div>
+        <h4>Contact Information</h4>
+      </div>
+      <div>
+        <dl>
+          <dt>Name (First Middle Last)</dt>
+          <dd><input type=text name=name></dd>
+          <dt>Street Address</dt>
+          <dd><input type=text name=street></dd>
+          <dt>City</dt>
+          <dd><input type=text name=city></dd>
+          <dt>State</dt>
+          <dd><input type=text name=state></dd>
+          <dt>Zip Code</dt>
+          <dd><input type=text name=zipcode></dd>
+          <dt>Phone (okay to leave message)</dt>
+          <dd><input type=text name=phone><input type=radio name=voicemail value=true>Yes          <input type=radio name=voicemail value=false checked>No</dd>
+          <dt>Email</dt>
+          <dd><input type=text name=email></dd>
+          <dt>Preferred form of contact</dt>
+          <dd>
+            <select name=contact_preference>
+              <option value=unknown ></option>
+              <option value=phone>Phone</option>
+              <option value=email>Email</option>
+              <option value=either>Either</option>
+            </select>
+          </dd>
+          <dt>Birthday</dt>
+          <dd><input type=date name=birthday></dd>
+        </dl>
+      </div>
+    </div>
+    <div name=education>
+      <div>
+        <h4>Education</h4>
+      </div>
+      <div>
+        <dl>
+          <dt>Highest Level of Education</dt>
+          <dd><input type=text name=ed_level></dd>
+          <dt>Other fluent language (willing to interpret)</dt>
+          <dd><input type=text name=language><input type=radio name=interpret value=true>Yes          <input type=radio name=interpret value=false checked>No</dd>
+        </dl>
+      </div>
+    </div>
+    <div name=work_history>
+      <div>
+        <h4>Work History</h4>
+      </div>
+      <div>
+        <dl>
+          {{ yes_no('Currently Employed', 'employed') }}
+          {{ yes_no('I have a resume', 'resume', yes='Yes (Sent or Provided)') }}
+        </dl>
+      </div>
+    </div>
+    <div name=emergency_contact>
+      <div>
+        <h4>Emergency Contact Information</h4>
+      </div>
+      <div>
+        <dl>
+          <dt>Contact Name</dt>
+          <dd><input type=text name=emergency_name></dd>
+          <dt>Contact Phone</dt>
+          <dd><input type=text name=emergency_phone></dd>
+          <dt>Relationship</dt>
+          <dd><input type=text name=emergency_relation></dd>
+        </dl>
+      </div>
+    </div>
+    <div name=medical_info>
+      <div>
+          <h4>Medical Information</h4>
+      </div>
+      <div>
+        <dl>
+          <dt>Medical Insurance Provider</dt>
+          <dd><input type=text name=insurance_provider></dd>
+          <dt>Health factors that may affect volunteering<br/>(restricted lifting, allergies, medications, etc)</dt>
+          <dd><textarea name=health_factors></textarea></dd>
+        </dl>
+      </div>
+    </div>
+    <div name=availability>
+      <div>
+        <h4>Preferred Availability</h4>
+        <label>Note: WRA is open the 2<sup>nd</sup> Saturday of the month only for donations</label>
+      </div>
+      <div>
+        <dl>
+          <table>
+            <thead><tr><th></th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>
+            <tbody>
+              {{ time_grid_row('09', '09:00 - 10:00') }}
+              {{ time_grid_row('10', '10:00 - 11:00') }}
+              {{ time_grid_row('11', '11:00 - 12:00') }}
+              {{ time_grid_row('12', '12:00 -  1:00') }}
+              {{ time_grid_row('13', ' 1:00 -  2:00') }}
+              {{ time_grid_row('14', ' 2:00 -  3:00') }}
+              {{ time_grid_row('15', ' 3:00 -  4:00') }}
+              {{ time_grid_row('16', ' 4:00 -  5:00') }}
+            </tbody>
+          </table>
+          <h5>Volunteer activity interest:</h5>
+          Note: Asterisk<sup>*</sup> indicates a background check, at a cost of $18, is required
+          {{ labeled_checkbox('Inventory', 'inventory') }}
+          {{ labeled_checkbox('Research', 'research') }}
+          {{ labeled_checkbox('Outreach', 'outreach') }}
+          {{ labeled_checkbox('Marketing', 'marketing') }}
+          {{ labeled_checkbox('Reception/Scheduling', 'reception_scheduling') }}
+          {{ labeled_checkbox('Speakers', 'speakers') }}
+          {{ labeled_checkbox('Maintenance', 'maintenance') }}
+          <dt>Other, please specify</dt>
+          <dd><input type=text name="other"></dd>
+          {{ labeled_checkbox('Advocate<sup>*</sup>', 'advocate') }}
+          {{ labeled_checkbox('Computer<sup>*</sup>', 'computer') }}
+          {{ labeled_checkbox('Resumes/Mock Interview<sup>*</sup>', 'resume_mock_int') }}
+          {{ labeled_checkbox('Image Consultant<sup>*</sup>', 'image_consult') }}
+          {{ labeled_checkbox('Database<sup>*</sup>', 'database') }}
+        </dl>
+      </div>
+    </div>
+    <div name=criminal_history>
+      <div>
+        <h4>Criminal History</h4>
+        All volunteers must provide the answers to the following questions.
+      </div>
+      <div>
+        <dl>
+          {{ yes_no('Have you ever been convicted of a felony', 'felony') }}
+          If yes, please provide the following information:
+          <dt>Incident Date</dt>
+          <dd><input type=date name=incident_date></dd>
+          <dt>Incident Location</dt>
+          <dd><input type=text name=incident_loc></dd>
+          <dt>File Date</dt>
+          <dd><input type=date name=incident_file_date></dd>
+          <dt>File Location</dt>
+          <dd><input type=text name=incident_file_loc></dd>
+          <dt>Nature of Incident</dt>
+          <dd><input type=text name=incident_nature></dd>
+          <dt>Disposition of Charges</dt>
+          <dd><input type=text name=incident_disposition></dd>
+          Has any employer ever disciplined or terminated you or have you ever terminated your own employment for reasons related to physical or sexual abuse by you, sexual harassment by you, or theft?{{ yes_no('', 'emp_term') }}
+          If yes, please provide the following information:
+          <dt>Incident Date</dt>
+          <dd><input type=date name=emp_term_date></dd>
+          <dt>Incident Location</dt>
+          <dd><input type=text name=emp_term_loc></dd>
+          <dt>File Date</dt>
+          <dd><input type=date name=emp_term_file_date></dd>
+          <dt>File Location</dt>
+          <dd><input type=text name=emp_term_file_loc></dd>
+          <dt>Nature of Incident</dt>
+          <dd><input type=text name=emp_term_nature></dd>
+          <dt>Disposition</dt>
+          <dd><input type=text name=emp_term_disposition></dd>
+          <dt>Employer</dt>
+          <dd><input type=text name=emp_term_employer></dd>
+          <dt>City</dt>
+          <dd><input type=text name=emp_term_city></dd>
+          <dt>State</dt>
+          <dd><input type=text name=emp_term_state></dd>
+        </dl>
+      </div>
+    </div>
+    <div name=dec_auth_release>
+      <div>
+        <h5>Applicant's Declaration, Authorization & Release</h5>
+      </div>
+      <div>
+        <p style="font-weight: bolder;">
+          In order for your application to be considered, you must sign this Applicant's Declaration, Authorization & Release.
+        </p>
+        <p>
+          My answers on this application are complete and true. I understand that the submission of any false or incomplete information in connection with my application whether on this or other documents or in interviews, will be cause for the rejection of my application or the termination of my employment at any time. I authorize the Women's Resource Agency and its agents to verify any information related to my application or resume. I also authorize all individuals, schools, employers, and law enforcement officials to freely release any information concerning my background, and I hereby release any and all of them from any liability for doing so.
+        </p>
+        <dl>
+          <dt>Electronic Signature</dt>
+          <dd><input type=text name=decl_auth_rel_sig></dd>
+          <dt>Date</dt>
+          <dd><input type=date name=decl_auth_rel_date></dd>
+        </dl>
+      </div>
+    </div>
+    <div name=confide_agree>
+      <div>
+        <h5>Confidentiality agreement</h5>
+      </div>
+      <div>
+        <p>
+          It is the policy of the Women's Resource Agency (WRA) to protect the confidentiality of clients as well as to protect their right to privacy.
+        </p>
+        <p>
+          Personal information learned by volunteers which concerns clients, other caregivers and providers is to be held in strict confidence. This information is only to be used among organization staff for the professional planning of care.
+        </p>
+        <p>
+          Failure to abide by confidentiality policies is grounds for termination.
+        </p>
+        <p>
+          I acknowledge that I have carefully read and understand this agreement and fully understand its contents. I am aware that this is a release of liability and a contract between myself and I sign it of my own free will, after careful review and consideration of its meaning and legal effect.
+        </p>
+        <dl>
+          <dt>Electronic Signature</dt>
+          <dd><input type=text name=confide_agree_sig></dd>
+          <dt>Date</dt>
+          <dd><input type=date name=confide_agree_date></dd>
+        </dl>
+      </div>
+    </div>
+    <div name=informed_consent_release>
+      <div>
+        <h5>Volunteer informed consent & release</h5>
+      </div>
+      <div>
+        <p>I understand that my services are being offered to the Women's Resource Agency (WRA) on a volunteer basis without anticipation of wages, fees, in-kind compensation, benefits of any kind, or future employment. I understand and agree that my volunteer service is at the discretion of the WRA and can be discontinued by them at any time.</p>
+        <p>I will not engage in any activity that involves misuse of WRA property, funds, or records. If I suspect that any person has engaged in such behavior, I will report the matter immediately to either the Executive Director or the Treasurer of the Board of Directors. I will avoid activities or relationships that involve a conflict of interest with my service for WRA.</p>
+        <p>I will keep confidential and not use for my personal benefit or disclose to unauthorized persons any information to which I have access through WRA concerning its clients and donors.</p>
+        <p>I fully agree with the following Release of Liability (read carefully):</p>
+        <ul>
+          <li>I acknowledge that there will be certain risks associated with volunteer service at WRA, including by way of example, injury in activities in which I may be involved (such as sorting and carrying clothing, interacting with clients and their families some of whom may have criminal backgrounds, cleaning and carrying supplies and equipment, and participating in fundraising events and activities), injury due to transportation-related accidents and defects in facilities and equipment, illness or even death. In addition, I understand that there may be other risks inherent in these volunteer activities of which I may not be presently aware. By signing this Volunteer Agreement, I expressly warrant that I am capable of withstanding both the physical and mental demands in which I may participate. I also expressly assume all risks of the volunteer activities, whether such risks are known or unknown to me at this time.</li>
+          <li>In consideration for the privilege of service as a volunteer, I hereby release, and agree to indemnify, save, and hold harmless, WRA and its officers, directors, employees, volunteers, and agents from any claim that I might have against them as a result of injury or illness incurred by me during the course of my participation as a volunteer including (without limitation) any claims for negligence, failure to warn, or breach of warranty, and any claims for property damage, personal injury (physical or mental), medical expense, damages, income loss, costs, and expenses, whether asserted by me or another person. This release of liability is also intended to cover all claims that members of my family or my estate, heirs, representatives, or assigns may have against WRA or its officers, directors, employees, volunteers, or agents.</li>
+        </ul>
+        <p>
+          I fully agree with the following Consent to Medical Treatment and Payment Agreement (read carefully):
+          <ul>
+            <li>
+              If I am injured or become ill while participating in WRA activities or while on its premises, I consent to emergency medical care and treatment arranged for me by WRA, its employees, volunteers, clients, or representatives, and agree that I will pay for all such medical care and treatment, including emergency transportation, EMT, physician and hospital fees, and other costs incurred.
+            </li>
+          </ul>
+        </p>
+        <p>I acknowledge that I have carefully read and understood this agreement and fully understand its contents. I am aware that this is a release of liability and a contract between myself and WRA and/or its officers, employees, agents and volunteers, and I sign it of my own free will, after careful review and consideration of its meaning and legal effect.</p>
+        <dl>
+          <dt>Electronic Signature</dt>
+          <dd><input type=text name=informed_consent_release_sig></dd>
+          <dt>Date</dt>
+          <dd><input type=date name=informed_consent_release_date></dd>
+        </dl>
+      </div>
+    </div>
+    <input type=submit value=Apply>
+  </form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h2>Volunteer Application</h2>
+  <form action="{{ url_for('volunteer_apply') }}" method=post>
+    <dl>
+      <dt>Name:
+      <dd><input type=text name=firstname>
+      <dd><input type=text name=middlename>
+      <dd><input type=text name=lastname>
+    </dl>
+    <input type=submit value=Apply>
+  </form>
+{% endblock %}

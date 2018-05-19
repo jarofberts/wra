@@ -1,21 +1,21 @@
 {% extends "layout.html" %}
 {% block title %} - Client Registration{% endblock %}
 {% block heading %}Client Registration{% endblock %}
-{% macro textarea(name, desc, lines) -%}
-<textarea name="{{ name }}" placeholder="{{ desc }}" rows="{{ lines }}" cols="50"></textarea>
+{% macro textarea(name, desc, lines, required) -%}
+    <textarea name="{{ name }}" placeholder="{{ desc }}" rows="{{ lines }}" cols="50" {% if required %}required{% endif %}></textarea>
 {%- endmacro %}
-{% macro emailbox(name, desc) -%}
-<input type="email" name="{{ name }}" placeholder="{{ desc }}" />
+{% macro emailbox(name, desc, required) -%}
+    <input type="email" name="{{ name }}" placeholder="{{ desc }}" {% if required %}required{% endif %}/>
 {%- endmacro %}
-{% macro textbox(name, desc) -%}
-<input type="text" name="{{ name }}" placeholder="{{ desc }}" />
+{% macro textbox(name, desc, required) -%}
+    <input type="text" name="{{ name }}" placeholder="{{ desc }}" {% if required %}required{% endif %}/>
 {%- endmacro %}
-{% macro checkbox(name, desc, value) -%}
-<label><input type="checkbox" name="{{ name }}" value="{{ value }}"/>{{ desc }}</label>
+{% macro checkbox(name, desc, value, required) -%}
+    <label><input type="checkbox" name="{{ name }}" value="{{ value }}" {% if required %}required{% endif %}/>{{ desc }}</label>
 {%- endmacro %}
-{% macro select(name, desc, options) -%}
+{% macro select(name, desc, options, required) -%}
 <label>{{ desc }}
-<select name="{{ name }}" size="1" placeholder="{{ desc }}">
+<select name="{{ name }}" size="1" {% if required %}required{% endif %}>
     <option value=""></option>
     <optgroup label="{{ desc }}">
     {% for option in options %}
@@ -59,38 +59,38 @@
                 {% if member['count'] %}
 <!--2-->
                     {% for n in range(member['count']) %}
-                        {{ textbox(member['field'] ~ '[' ~ n ~ ']', member['desc']) }}
+                        {{ textbox(member['field'] ~ '[' ~ n ~ ']', member['desc'], member['required']) }}
                     {% endfor %}
                 {% elif member['count_min'] %}
 <!--3-->
                     <br />
-                    {{ textarea(member['field'], member['desc'], member['count_min']) }}
+                    {{ textarea(member['field'], member['desc'], member['count_min'], member['required']) }}
                 {% else %}
 <!--4-->
-                    {{ textbox(member['field'], member['desc']) }}
+                    {{ textbox(member['field'], member['desc'], member['required']) }}
                 {% endif %}
             {% elif 'email' in member['type'] %}
 <!--5-->
-                {{ emailbox(member['field'], member['desc']) }}
+                {{ emailbox(member['field'], member['desc'], member['required']) }}
             {% elif member['type'] == 'bool' %}
 <!--6-->
-                {{ checkbox(member['field'], member['desc'], 1) }}
+                {{ checkbox(member['field'], member['desc'], 1, member['required']) }}
             {% elif 'Enum' in member['type'] %}
 <!--7-->
                 {% if 'int' in member['type'] %}
 <!--8-->
                     <h5>{{ member['desc'] }}</h5>
                     {% for option in member['options'] %}
-                        {{ checkbox("_"+member['field'], option['desc'], option['value']) }}<br />
+                        {{ checkbox("_"+member['field'], option['desc'], option['value'], member['required']) }}<br />
                     {% endfor %}
-                    <input type="hidden" name="{{ member['field'] }}">
+                    <input type="hidden" name="{{ member['field'] }}"/>
                 {% else %}
 <!--9-->
                     {% if loop.length == 1 %}
 <!--A-->
                         <h5>{{ member['desc'] }}</h5>
                     {% endif %}
-                    {{ select(member['field'], member['desc'], member['options']) }}
+                    {{ select(member['field'], member['desc'], member['options'], member['required']) }}
                 {% endif %}
             {% elif member['type'] in ('date', 'month') %}
 <!--B-->
@@ -101,20 +101,20 @@
 <!--D-->
                     <label>{{ member['desc'] }}</label>
                 {% endif %}
-                <input type="{{ member['type'] }}" name="{{ member['field'] }}">
+                    <input type="{{ member['type'] }}" name="{{ member['field'] }}" {% if member['required'] %}required{% endif %}/>
             {% elif member['type'] == 'bytes' %}
 <!--E-->
 <!--https://stackoverflow.com/questions/3096470/capture-signature-using-html5-and-ipad-->
             {% else %}
 <!--F-->
-                {{ member['desc'] }}({{ member['field'] }}: {{ member['type'] }})
+                <!--{{ member['desc'] }}({{ member['field'] }}: {{ member['type'] }})-->
             {% endif %}
         {% endfor %}
         <br />
     {% endfor %}
     </fieldset>
 {% endfor %}
-    <input type="submit" value="Register" onClick="prepare();">
+    <input type="submit" value="Register" onClick="prepare();"/>
 </form>
 {% endblock %}
 

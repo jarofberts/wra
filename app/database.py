@@ -135,5 +135,19 @@ def create_table(table_name, obj: type, db=None):
     print('Initialized the database.')
 
 
+def query(table_name, db=None, **parameters):
+    if not db:
+        db = get_db()
+    command = 'Select * from {table} where {restrictions}'.format(table=table_name,
+                                                                  restrictions=' and '.join(['%s=?' % field for field in parameters.keys()]))
+    cursor = db.execute(command, tuple(parameters.values()))
+    rows = cursor.fetchall()
+    fields = cursor.description
+    results = []
+    for row in rows:
+        results.append({field[0]: row[index] for index, field in enumerate(fields)})
+    return results
+
+
 if __name__ == '__main__':
     create_table(table_name='clients', obj=Client)

@@ -9,50 +9,50 @@ def enum_options(enum):
 
 def get_enum_member_by_value(enum_type, value):
     for member_value in enum_type.__members__.values():
-        if member_value.value == int(value):
+        if str(member_value.value) == str(value):
             return member_value
 
 
 class Citizenship(Enum):
-    US_CITIZEN = 1
-    GREEN_CARD = 2
-    VISA = 3
-    UNDOCUMENTED = 4
+    US_CITIZEN = 'US Citizen'
+    GREEN_CARD = 'Green Card'
+    VISA = 'Visa'
+    UNDOCUMENTED = 'Undocumented'
 
 
 class Gender(Enum):
-    FEMALE = 1
-    MALE = 2
-    TRANS = 4
+    FEMALE = 'Female'
+    MALE = 'Male'
+    TRANS = 'Trans'
 
 
 class MaritalStatus(Enum):
-    SINGLE = 1
-    MARRIED = 2
-    SEPARATED = 3
-    DIVORCED = 4
-    WIDOWED = 5
+    SINGLE = 'Single'
+    MARRIED = 'Married'
+    SEPARATED = 'Separated'
+    DIVORCED = 'Divorced'
+    WIDOWED = 'Widowed'
 
 
 class PhoneType(Enum):
-    PERSONAL = 1
-    SHARED = 2
-    HOME = 4
-    WORK = 8
-    MOBILE = 16
-    LAND_LINE = 32
+    PERSONAL = 'Personal'
+    SHARED = 'Shared'
+    HOME = 'Home'
+    WORK = 'Work'
+    MOBILE = 'Mobile'
+    LAND_LINE = 'Land Line'
 
 
 class EducationLevel(Enum):
-    LESS_THAN_12TH_GRADE = 1
-    HIGH_SCHOOL = 2
-    GED = 3
-    SOME_COLLEGE = 4
-    COLLEGE_AA = 5
-    COLLEGE_BA = 6
-    COLLEGE_BS = 7
-    SOME_TRADE_SCHOOL = 8
-    TRADE_SCHOOL_CERTIFICATE = 9
+    LESS_THAN_12TH_GRADE = 'Less than 12th grade'
+    HIGH_SCHOOL = 'High School Diploma'
+    GED = 'GED'
+    SOME_COLLEGE = 'Some College'
+    COLLEGE_AA = 'College AA'
+    COLLEGE_BA = 'College BA'
+    COLLEGE_BS = 'College BS'
+    SOME_TRADE_SCHOOL = 'Some Trade School'
+    TRADE_SCHOOL_CERTIFICATE = 'Trade School Certificate'
 
 
 class Client(object):
@@ -226,10 +226,11 @@ class Client(object):
                                 {'field': 'name_last', 'type': 'str', 'desc': 'last', 'required': True}]
                         }, {
                             'members': [
-                                {'field': 'gender', 'type': 'Enum', 'desc': 'Gender', 'options': enum_options(Gender)},
+                                {'field': 'gender', 'type': 'Enum', 'desc': 'Gender', 'options': enum_options(Gender), 'multiple': True},
                                 {'field': 'birth_date', 'type': 'month', 'desc': 'Birth Date', 'required': True}]
                         }, {
                             'sub_group': 'Address',
+                            'alignment': 'Vertical',
                             'members': [
                                 {'field': 'address_street', 'type': 'str', 'desc': 'Street'},
                                 {'field': 'address_city', 'type': 'str', 'desc': 'City'},
@@ -239,7 +240,7 @@ class Client(object):
                             'sub_group': 'Phone',
                             'members': [
                                 {'field': 'phone_number', 'type': 'str', 'desc': 'Number'},
-                                {'field': 'phone_type', 'type': 'Enum', 'desc': 'Type', 'options': enum_options(PhoneType)},
+                                {'field': 'phone_type', 'type': 'Enum', 'desc': 'Type', 'options': enum_options(PhoneType), 'multiple': True},
                                 {'field': 'phone_voicemail', 'type': 'bool', 'desc': 'Leave message'}]
                         }, {
                             'sub_group': 'Email',
@@ -252,6 +253,7 @@ class Client(object):
                                 {'field': 'emergency_contact_phone', 'type': 'str', 'desc': 'phone'}]
                         }, {
                             'sub_group': 'Referring Agency',
+                            'alignment': 'Vertical',
                             'members': [
                                 {'field': 'agency_name', 'type': 'str', 'desc': 'name'},
                                 {'field': 'agency_counselor', 'type': 'str', 'desc': 'counselor'},
@@ -280,12 +282,12 @@ class Client(object):
                         }, {
                             'sub_group': 'Employment',
                             'members': [
-                                {'field': 'employment_status', 'type': 'int,Enum', 'desc': 'Status',
-                                 'options': [{'desc': 'self-employed', 'value': 1},
-                                             {'desc': 'under-employed', 'value': 2},
-                                             {'desc': 'full-time', 'value': 4},
-                                             {'desc': 'part-time', 'value': 8},
-                                             {'desc': 'seasonal', 'value': 16}
+                                {'field': 'employment_status', 'type': 'Enum', 'desc': 'Status', 'multiple': True,
+                                 'options': [{'desc': 'self-employed', 'value': 'self-employed'},
+                                             {'desc': 'under-employed', 'value': 'under-employed'},
+                                             {'desc': 'full-time', 'value': 'full-time'},
+                                             {'desc': 'part-time', 'value': 'part-time'},
+                                             {'desc': 'seasonal', 'value': 'seasonal'}
                                              ]},
                                 {'field': 'employment_status_employer', 'type': 'str', 'desc': 'Employer'}
                             ]
@@ -293,11 +295,11 @@ class Client(object):
                             'sub_group': 'Lost Income',
                             'members': [
                                 {'field': 'lost_income_recent', 'type': 'bool', 'desc': 'Recently lost income?'},
-                                {'field': 'lost_income_reason', 'type': 'int,Enum', 'desc': 'Cause of income loss',
-                                 'options': [{'desc': 'Lost my job', 'value': 1},
-                                             {'desc': 'Spouse/Partner lost job', 'value': 2},
-                                             {'desc': 'Loss/Lack of child support', 'value': 4},
-                                             {'desc': 'Loss of government subsidy', 'value': 8}
+                                {'field': 'lost_income_reason', 'type': 'Enum', 'desc': 'Cause of income loss', 'multiple': True,
+                                 'options': [{'desc': 'Lost my job', 'value': 'Lost my job'},
+                                             {'desc': 'Spouse/Partner lost job', 'value': 'Spouse/Partner lost job'},
+                                             {'desc': 'Loss/Lack of child support', 'value': 'Loss/Lack of child support'},
+                                             {'desc': 'Loss of government subsidy', 'value': 'Loss of government subsidy'}
                                              ]},
                                 {'field': 'lost_income_reason_other', 'type': 'str', 'desc': 'Other'}
                             ]
@@ -314,31 +316,32 @@ class Client(object):
                     'sub_groups': [
                         {'sub_group': 'Cultural',
                          'members': [
-                             {'field': 'ethnicity', 'type': 'int,Enum', 'desc': 'Ethnicity',
+                             {'field': 'ethnicity', 'type': 'Enum', 'desc': 'Ethnicity', 'multiple': True,
                               'options': [
-                                  {'desc': 'White', 'value': 1},
-                                  {'desc': 'Black/African American', 'value': 2},
-                                  {'desc': 'Asian', 'value': 4},
-                                  {'desc': 'American Indian/Alaskan Native', 'value': 8},
-                                  {'desc': 'Native Hawaiian/Other Pacific Islander', 'value': 16}
+                                  {'desc': 'White', 'value': 'White'},
+                                  {'desc': 'Black/African American', 'value': 'Black/African American'},
+                                  {'desc': 'Asian', 'value': 'Asian'},
+                                  {'desc': 'American Indian/Alaskan Native', 'value': 'American Indian/Alaskan Native'},
+                                  {'desc': 'Native Hawaiian/Other Pacific Islander', 'value': 'Native Hawaiian/Other Pacific Islander'}
                               ]},
                              {'field': 'ethnicity_other', 'type': 'str', 'desc': 'Other ethnicity'},
                          ]},
                         {'sub_group': 'Languages Spoken',
                          'members': [
                              {'field': 'language_english_2nd', 'type': 'bool', 'desc': 'English is a second language'},
-                             {'field': 'language_known', 'type': 'str', 'desc': 'List other languages spoken ', 'count_min': 1}
+                             {'field': 'language_known', 'type': 'str', 'desc': 'Other languages spoken ', 'count_min': 1, 'multiple': True}
                          ]},
                         {'sub_group': 'Household',
+                         'alignment': 'vertical',
                          'members': [
                              {'field': 'household_marital_status', 'type': 'Enum', 'desc': 'Marital Status',
                               'options': enum_options(MaritalStatus)},
                              {'field': 'household_annual_income', 'type': 'int', 'desc': 'Annual household income'},
-                             {'field': 'household_issues', 'type': 'int,Enum', 'desc': 'Details',
+                             {'field': 'household_issues', 'type': 'Enum', 'desc': 'Details', 'multiple': True,
                               'options': [
-                                  {'desc': 'are you responsible for the bills', 'value': 1},
-                                  {'desc': 'female headed household', 'value': 2},
-                                  {'desc': 'single parent', 'value': 4}
+                                  {'desc': 'Responsible for the bills', 'value': 'Responsible for the bills'},
+                                  {'desc': 'Female headed household', 'value': 'Female headed household'},
+                                  {'desc': 'Single parent', 'value': 'Single parent'}
                               ]},
                              {'field': 'household_size', 'type': 'int', 'desc': 'Size of household'},
                              {'field': 'household_number_minor_children', 'type': 'int', 'desc': 'Number of minor children'},
@@ -346,29 +349,30 @@ class Client(object):
                          ]},
                         {'sub_group': 'Education',
                          'members': [
-                             {'field': 'education_level', 'type': 'Enum', 'desc': 'Education Level',
-                              'options': enum_options(EducationLevel)},
+                             {'field': 'education_level', 'type': 'Enum', 'desc': 'Highest Education Level',
+                              'options': enum_options(EducationLevel), 'multiple': True},
                              {'field': 'education_currently_attending', 'type': 'bool', 'desc': 'Currently attending school'}
                          ]},
                         {'members': [
-                            {'field': 'disabilities', 'type': 'int,Enum', 'desc': 'Special Needs',
+                            {'field': 'disabilities', 'type': 'Enum', 'desc': 'Special Needs', 'multiple': True,
                              'options': [
-                                 {'desc': 'Abused child', 'value': 1},
-                                 {'desc': 'Neglected child', 'value': 2},
-                                 {'desc': 'Severe Mental Illness', 'value': 4},
-                                 {'desc': 'Developmental Disabilities', 'value': 8},
-                                 {'desc': 'Physical Disabilities', 'value': 16},
-                                 {'desc': 'Victim of Domestic Violence', 'value': 32},
-                                 {'desc': 'Elderly', 'value': 64},
-                                 {'desc': 'Frail elderly', 'value': 128},
-                                 {'desc': 'Alcohol and drug abuse', 'value': 256},
-                                 {'desc': 'Living with HIV/AIDS', 'value': 512},
-                                 {'desc': 'chronically homeless', 'value': 1024},
-                                 {'desc': 'currently homeless', 'value': 2048},
+                                 {'desc': 'Abused child', 'value': 'Abused child'},
+                                 {'desc': 'Alcohol and drug abuse', 'value': 'Alcohol and drug abuse'},
+                                 {'desc': 'Chronically homeless', 'value': 'Chronically homeless'},
+                                 {'desc': 'Currently homeless', 'value': 'Currently homeless'},
+                                 {'desc': 'Developmental Disabilities', 'value': 'Developmental Disabilities'},
+                                 {'desc': 'Elderly', 'value': 'Elderly'},
+                                 {'desc': 'Frail elderly', 'value': 'Frail elderly'},
+                                 {'desc': 'Living with HIV/AIDS', 'value': 'Living with HIV/AIDS'},
+                                 {'desc': 'Neglected child', 'value': 'Neglected child'},
+                                 {'desc': 'Physical Disabilities', 'value': 'Physical Disabilities'},
+                                 {'desc': 'Severe Mental Illness', 'value': 'Severe Mental Illness'},
+                                 {'desc': 'Victim of Domestic Violence', 'value': 'Victim of Domestic Violence'},
                              ]}
                         ]},
                         {
                             'sub_group': 'Citizenship',
+                            'alignment': 'Vertical',
                             'members': [
                                 {'field': 'citizenship', 'type': 'Enum', 'desc': 'Citizenship Status',
                                  'options': enum_options(Citizenship)},
@@ -377,21 +381,22 @@ class Client(object):
                             ]
                         }, {
                             'sub_group': 'Military',
+                            'alignment': 'Vertical',
                             'members': [
-                                {'field': 'military_branch', 'type': 'int,Enum', 'desc': 'Branch',
-                                 'options': [{'desc': 'Air Force', 'value': 1},
-                                             {'desc': 'Army', 'value': 2},
-                                             {'desc': 'Coast Guard', 'value': 4},
-                                             {'desc': 'Marines', 'value': 8},
-                                             {'desc': 'National Guard', 'value': 16},
-                                             {'desc': 'Navy', 'value': 32}]
+                                {'field': 'military_branch', 'type': 'Enum', 'desc': 'Branch',
+                                 'options': [{'desc': 'Air Force', 'value': 'Air Force'},
+                                             {'desc': 'Army', 'value': 'Army'},
+                                             {'desc': 'Coast Guard', 'value': 'Coast Guard'},
+                                             {'desc': 'Marines', 'value': 'Marines'},
+                                             {'desc': 'National Guard', 'value': 'National Guard'},
+                                             {'desc': 'Navy', 'value': 'Navy'}]
                                  },
-                                {'field': 'military_status', 'type': 'int,Enum', 'desc': 'Status',
-                                 'options': [{'desc': 'Active', 'value': 1},
-                                             {'desc': 'Injured', 'value': 2},
-                                             {'desc': 'Retired', 'value': 4},
-                                             {'desc': 'Reserves', 'value': 8},
-                                             {'desc': 'Spouse', 'value': 16}]
+                                {'field': 'military_status', 'type': 'Enum', 'desc': 'Status',
+                                 'options': [{'desc': 'Active', 'value': 'Active'},
+                                             {'desc': 'Injured', 'value': 'Injured'},
+                                             {'desc': 'Retired', 'value': 'Retired'},
+                                             {'desc': 'Reserves', 'value': 'Reserves'},
+                                             {'desc': 'Spouse', 'value': 'Spouse'}]
                                  },
                             ]
                         },
@@ -406,7 +411,7 @@ class Client(object):
                             'sub_group': 'Criminal record',
                             'members': [
                                 {'field': 'convicted', 'type': 'bool', 'desc': 'Been convicted of a felony'},
-                                {'field': 'can_background_check', 'type': 'bool', 'desc': 'Can pass background check'}
+                                {'field': 'can_background_check', 'type': 'bool', 'desc': 'I can pass background check'}
                             ]
                         }
                     ]
@@ -419,7 +424,7 @@ class Client(object):
                             'members': [
                                 {'field': 'affirmed_signature', 'type': 'bytes', 'desc': 'Signature'},
                                 {'field': 'affirmed_name', 'type': 'str', 'desc': 'Print Name'},
-                                {'field': 'affirmed_date', 'type': 'date', 'desc': 'Date'},
+                                {'field': 'affirmed_date', 'type': 'date', 'desc': 'Today\'s Date'},
                             ]
                         },
                         {
@@ -429,7 +434,7 @@ class Client(object):
                             'members': [
                                 {'field': 'accept_not_counseling_signature', 'type': 'bytes', 'desc': 'Signature'},
                                 {'field': 'accept_not_counseling_name', 'type': 'str', 'desc': 'Print Name'},
-                                {'field': 'accept_not_counseling_date', 'type': 'date', 'desc': 'Date'},
+                                {'field': 'accept_not_counseling_date', 'type': 'date', 'desc': 'Today\'s Date'},
                             ]
                         }
                     ]
@@ -444,7 +449,7 @@ class Client(object):
     emergency_contact_name: str = None
     emergency_contact_phone: str = None
 
-    gender: Gender = None
+    gender: str = None
 
     birth_date: str = None
 
@@ -454,48 +459,48 @@ class Client(object):
     address_zipcode: str = None
 
     phone_number: str = None
-    phone_type: PhoneType = None
-    phone_voicemail: bool = None
+    phone_type: str = None
+    phone_voicemail: str = None
 
     email: str = None
 
-    unemployed_status: bool = None
+    unemployed_status: str = None
     unemployed_date: str = None
 
-    employment_status: int = None
+    employment_status: str = None
     employment_status_employer: str = None
 
-    lost_income_recent: bool = None
-    lost_income_reason: int = None
+    lost_income_recent: str = None
+    lost_income_reason: str = None
     lost_income_reason_other: str = None
 
     industries: List[str] = None
 
     citizenship: Citizenship = None
 
-    military_branch: int = None
-    military_status: int = None
+    military_branch: str = None
+    military_status: str = None
 
-    household_marital_status: MaritalStatus = None
-    household_annual_income: int = None
-    household_size: int = None
-    household_number_minor_children: int = None
-    household_number_adult_children: int = None
-    household_issues: int = None
+    household_marital_status: str = None
+    household_annual_income: str = None
+    household_size: str = None
+    household_number_minor_children: str = None
+    household_number_adult_children: str = None
+    household_issues: str = None
 
-    ethnicity: int = None
+    ethnicity: str = None
     ethnicity_other: str = None
 
-    language_english_2nd: bool = None
-    language_known: List[str] = None
+    language_english_2nd: str = None
+    language_known: str = None
 
-    education_level: int = None
-    education_currently_attending: bool = None
+    education_level: str = None
+    education_currently_attending: str = None
 
-    disabilities: int = None
+    disabilities: str = None
 
-    transportation_car: bool = None
-    transportation_bus: bool = None
+    transportation_car: str = None
+    transportation_bus: str = None
     transportation_other: str = None
 
     agency_name: str = None
@@ -503,14 +508,14 @@ class Client(object):
     agency_counselor_phone: str = None
     agency_counselor_email: str = None
 
-    photo_id: bool = None
-    social_security_card: bool = None
+    photo_id: str = None
+    social_security_card: str = None
 
-    previous_client: bool = None
+    previous_client: str = None
     previous_client_when: str = None
 
-    convicted: bool = None
-    can_background_check: bool = None
+    convicted: str = None
+    can_background_check: str = None
 
     affirmed_signature: bytes = None
     affirmed_name: str = None

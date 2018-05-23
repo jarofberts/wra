@@ -9,7 +9,7 @@ from flask import Flask, request, session, g, redirect, url_for, render_template
 import sqlite3
 
 from wra.app.data_model import unpack_typing
-from wra.app.database import db_path, save
+from wra.app.database import db_path, save, query, get_object_table
 from wra.app.data_model.client import Client, get_enum_member_by_value
 
 app = Flask(__name__)  # create the application instance :)
@@ -55,22 +55,6 @@ def main():
     return redirect(url_for(register_client.__name__))
 
 
-def find(key, dictionary: dict, generator: bool=True):
-    """
-    Adapted from https://gist.github.com/douglasmiranda/5127251
-    """
-    for k, v in dictionary.iteritems():
-        if k == key:
-            yield v
-        elif isinstance(v, dict):
-            for result in find(key, v, generator):
-                yield result
-        elif isinstance(v, list):
-            for d in v:
-                for result in find(key, d, generator):
-                    yield result
-
-
 def prepare_value(field_type_info, value):
     if not value and field_type_info['type'] not in (bool, typing.List):
         return None
@@ -80,7 +64,7 @@ def prepare_value(field_type_info, value):
         parsed = value.split('-')
         return date(int(parsed[0]), int(parsed[1]), int(parsed[2]))
     elif type(field_type_info['type']) == type(Enum):
-        return get_enum_member_by_value(enum_type=field_type_info['type'], value=int(value))
+        return get_enum_member_by_value(enum_type=field_type_info['type'], value=str(value))
     elif field_type_info['type'] == int:
         return int(value)
     elif field_type_info['type'] == bool:
@@ -122,10 +106,18 @@ def register_client():
             else:
                 c.__setattr__(field, value)
         save(c, db=get_db())
-        msg = 'Registration submitted'
+        msg = 'Thank you for registering. We will be with you shortly. While you wait please help your self to some tea or coffee.'
         flash(msg)
         return redirect(url_for(main.__name__, msg=msg))
 
+
+@app.route('/find', methods=['GET', 'POST'])
+def find_client():
+    if request.method == 'GET':
+        return render_template('search.html', fields={})
+    elif request.method == 'POST':
+        res = query(get_object_table(Client), None, **{key: value for key, value in request.form.items() if value != ''})
+        return render_template('search.html', results=res, count=len(res), fields=dict(request.form.items()))
 
 # @app.route('/apply', methods=['GET', 'POST'])
 # def volunteer_apply():
@@ -241,4 +233,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=80)

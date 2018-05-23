@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block heading %}
+  <div class=metanav>
+    {% if not session.logged_in %}
+      <a href="{{ url_for('login') }}">log in</a>
+    {% else %}
+      <a href="{{ url_for('logout') }}">log out</a>
+    {% endif %}
+    <!--{% if error %}<hr/><p class=error><strong>Error:</strong> {{ error }}{% endif %}-->
+    <!--{% if msg %}<hr/><p class=error><strong>Message:</strong> {{ msg }}{% endif %}-->
+    <hr/>
+  </div>
+{% endblock %}

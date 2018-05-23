@@ -1,29 +1,57 @@
 {% extends "layout.html" %}
-{% block title %} - Client Registration{% endblock %}
-{% block heading %}Client Registration{% endblock %}
-{% macro textarea(name, desc, lines, required) -%}
-    <textarea name="{{ name }}" placeholder="{{ desc }}" rows="{{ lines }}" cols="50" {% if required %}required{% endif %}></textarea>
+{% macro textarea(name, desc, lines, required, labeled, vertical) -%}
+    {% if labeled %}<label style="vertical-align: top;" for="{{ name }}">{{ desc }}</label>{% if label_above %}<br />{% endif %}{% endif %}
+    <textarea class="form-control" name="{{ name }}" id="{{ desc }}" placeholder="{{ desc }}" rows="{{ lines }}" class="form-control"{% if required %} required{% endif %}></textarea>
 {%- endmacro %}
-{% macro emailbox(name, desc, required) -%}
-    <input type="email" name="{{ name }}" placeholder="{{ desc }}" {% if required %}required{% endif %}/>
+{% macro emailbox(name, desc, required, labeled) -%}
+<div class="form-group">
+    {% if labeled %}<label class="control-label" for="{{ name }}" class="form-control">{{ desc }}</label>{% endif %}
+    <div class="col-sm-10">
+        <input type="email" name="{{ name }}" placeholder="{{ desc }}" class="form-control"{% if required %} required{% endif %}/>
+    </div>
+</div>
 {%- endmacro %}
-{% macro textbox(name, desc, required) -%}
+{% macro textbox(name, desc, required, labeled) -%}
+    {% if labeled %}<label>{{ desc }}</label>{% endif %}
     <input type="text" name="{{ name }}" placeholder="{{ desc }}" {% if required %}required{% endif %}/>
 {%- endmacro %}
-{% macro checkbox(name, desc, value, required) -%}
-    <label><input type="checkbox" name="{{ name }}" value="{{ value }}" {% if required %}required{% endif %}/>{{ desc }}</label>
+{% macro togglebutton(name, desc, on_value, off_value, required, labeled) -%}
+    <div class="btn-group-toggle" data-toggle="buttons">
+      <label class="btn btn-secondary active">
+        <input type="checkbox" autocomplete="off" value="{{ desc }}" name="{{ name }}"> {{ desc }}
+      </label>
+    </div>
 {%- endmacro %}
-{% macro select(name, desc, options, required) -%}
-<label>{{ desc }}
-<select name="{{ name }}" size="1" {% if required %}required{% endif %}>
-    <option value=""></option>
+{% macro checkbox(name, desc, value, required, labeled) -%}
+    {% if labeled %}
+        {{ desc }}
+    {% endif %}
+    <input type="checkbox" id="{{ name }}" name="{{ name }}" value="{{ value }}" {% if required %}required{% endif %}/>
+{%- endmacro %}
+{% macro select(name, desc, options, required, lebeled, multiple) -%}
+{% if labeled %}<label>{{ desc }}</label>{% endif %}
+{% if multiple %}
+<select name="{{ name }}" id="{{ name }}" size="1" {% if required %}required{% endif %} multiple="multiple">
+{% else %}
+<select name="{{ name }}" id="{{ name }}" size="1" {% if required %}required{% endif %}>
+    <option>None selected</option>
+{% endif %}
     <optgroup label="{{ desc }}">
     {% for option in options %}
         <option value="{{ option['value'] }}">{{ option['desc'] }}</option>
     {% endfor %}
     </optgroup>
-</select></label>
+</select>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#{{ name }}').multiselect({buttonWidth: '20em'});
+    });
+</script>
+{% if multiple %}
+{% endif %}
 {%- endmacro %}
+{% block title %} - Client Registration{% endblock %}
+{% block heading %}Client Registration{% endblock %}
 {% block body %}
 <script language="JavaScript">
     function prepare() {
@@ -47,69 +75,61 @@
         }
     }
 </script>
-<form name="register_client" method="post" action="/client">
+<form name="register_client" method="post" action="/client" class="form-horizontal">
 {% for group in groups %}
     <fieldset name="{{ group['name'] }}">
     <h3>{{ group['name'] }}</h3>
     {% for sub_group in group['sub_groups'] %}
         <h4>{{ sub_group['sub_group'] }}</h4>
+        <!--{% if sub_group['alignment']|lower == 'vertical' %}<dl>{% endif %}-->
         {% for member in sub_group['members'] %}
+            {% if sub_group['alignment']|lower == 'vertical' %}
+                <!--<dt>{{ member['desc'] }}</dt>-->
+                <!--<dd>-->
+            {% endif %}
             {% if member['type'] in ('str', 'int') %}
-<!--1-->
                 {% if member['count'] %}
-<!--2-->
                     {% for n in range(member['count']) %}
-                        {{ textbox(member['field'] ~ '[' ~ n ~ ']', member['desc'], member['required']) }}
+                        {{ textbox(member['field'] ~ '[' ~ n ~ ']', member['desc'], member['required'], False) }}
                     {% endfor %}
                 {% elif member['count_min'] %}
-<!--3-->
                     <br />
-                    {{ textarea(member['field'], member['desc'], member['count_min'], member['required']) }}
+                    {{ textarea(member['field'], member['desc'], member['count_min'], member['required'], True) }}
                 {% else %}
-<!--4-->
-                    {{ textbox(member['field'], member['desc'], member['required']) }}
+                    {{ textbox(member['field'], member['desc'], member['required'], False) }}
                 {% endif %}
             {% elif 'email' in member['type'] %}
-<!--5-->
-                {{ emailbox(member['field'], member['desc'], member['required']) }}
+                {{ emailbox(member['field'], member['desc'], member['required'], False) }}
             {% elif member['type'] == 'bool' %}
-<!--6-->
-                {{ checkbox(member['field'], member['desc'], 1, member['required']) }}
-            {% elif 'Enum' in member['type'] %}
-<!--7-->
-                {% if 'int' in member['type'] %}
-<!--8-->
+                {{ togglebutton(member['field'], member['desc'], 'Yes', 'No', member['required'], sub_group['alignment']|lower != 'vertical') }}<br />
+            {% elif member['type']|lower == 'enum' %}
+                {% if sub_group['alignment']|lower != 'vertical' %}
                     <h5>{{ member['desc'] }}</h5>
+                {% endif %}
+                {% if 'int' in member['type'] %}
                     {% for option in member['options'] %}
                         {{ checkbox("_"+member['field'], option['desc'], option['value'], member['required']) }}<br />
                     {% endfor %}
-                    <input type="hidden" name="{{ member['field'] }}"/>
                 {% else %}
-<!--9-->
-                    {% if loop.length == 1 %}
-<!--A-->
-                        <h5>{{ member['desc'] }}</h5>
-                    {% endif %}
-                    {{ select(member['field'], member['desc'], member['options'], member['required']) }}
+                    {{ select(member['field'], member['desc'], member['options'], member['required'], False, member['multiple']) }}
                 {% endif %}
             {% elif member['type'] in ('date', 'month') %}
-<!--B-->
-                {% if loop.length == 1 %}
-<!--C-->
-                    <h5>{{ member['desc'] }}</h5>
-                {% else %}
-<!--D-->
-                    <label>{{ member['desc'] }}</label>
+                {% if sub_group['alignment']|lower != 'vertical' %}
+                    {% if loop.length == 1 %}
+                        <h5>{{ member['desc'] }}</h5>
+                    {% else %}
+                        <label>{{ member['desc'] }}</label>
+                    {% endif %}
                 {% endif %}
-                    <input type="{{ member['type'] }}" name="{{ member['field'] }}" {% if member['required'] %}required{% endif %}/>
+                <input type="{{ member['type'] }}" name="{{ member['field'] }}" {% if member['required'] %}required{% endif %}/>
             {% elif member['type'] == 'bytes' %}
-<!--E-->
 <!--https://stackoverflow.com/questions/3096470/capture-signature-using-html5-and-ipad-->
             {% else %}
-<!--F-->
-                <!--{{ member['desc'] }}({{ member['field'] }}: {{ member['type'] }})-->
+<!--Unhandled member type: {{ member['desc'] }}({{ member['field'] }}: {{ member['type'] }})-->
             {% endif %}
+            <!--{% if sub_group['alignment']|lower == 'vertical' %}</dd>{% endif %}-->
         {% endfor %}
+        <!--{% if sub_group['alignment']|lower == 'vertical' %}</dl>{% endif %}-->
         <br />
     {% endfor %}
     </fieldset>

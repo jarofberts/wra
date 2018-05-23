@@ -1,3 +1,4 @@
 graft web/templates
 graft web/static
+graft web/script
 include web/schema.sql
